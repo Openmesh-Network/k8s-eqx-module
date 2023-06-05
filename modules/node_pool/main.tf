@@ -18,10 +18,18 @@ resource "equinix_metal_device" "x86_node" {
   facilities       = var.facility != "" ? [var.facility] : null
   metro            = var.metro != "" ? var.metro : null
   user_data        = data.template_file.node.rendered
-  tags             = ["kubernetes", "pool-${var.cluster_name}-${var.pool_label}-x86"]
+  tags             = [
+    jsonencode({ role : "node",
+                 cluster_name: var.cluster_name,
+                 infra_version: "v3"
+              })
+  ]
 
   billing_cycle = "hourly"
   project_id    = var.project_id
+  lifecycle {
+    ignore_changes = [user_data]
+  }
 }
 
 resource "equinix_metal_device" "arm_node" {

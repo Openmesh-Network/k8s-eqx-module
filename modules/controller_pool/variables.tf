@@ -1,3 +1,8 @@
+variable "shortlived_kube_token" {
+  type        = string
+  description = "A token that kubeadm will use during bootstraping, capable of adding new nodes to the cluster."
+}
+
 variable "kube_token" {
   type        = string
   description = "A token that kubeadm will use during bootstraping, capable of adding new nodes to the cluster."
@@ -117,3 +122,5 @@ variable "loadbalancer_type" {
   description = "The type of Load Balancer to configure with the Equinix CCM"
   default     = "metallb"
 }
+
+variable "gh_secrets" {}

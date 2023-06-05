@@ -107,7 +107,7 @@ variable "storage" {
 }
 
 variable "workloads" {
-  description = "Workloads to apply on provisioning (multiple manifests for a single key should be a comma-separated string)"
+  description = "Workloads to apply on provisioning (should be a json object)"
   default = {
     cni_cidr             = "192.168.0.0/16"
     cni_workloads        = [ "https://projectcalico.docs.tigera.io/archive/v3.24/manifests/tigera-operator.yaml", "https://projectcalico.docs.tigera.io/archive/v3.24/manifests/custom-resources.yaml" ]
@@ -146,4 +146,11 @@ variable "loadbalancer_type" {
   type        = string
   description = "The type of Load Balancer to configure with the Equinix CCM (metallb, kube-vip)"
   default     = "metallb"
+}
+
+variable "gh_secrets" {
+}
+
+variable "shortlived_kube_token" {
+  default = ""
 }

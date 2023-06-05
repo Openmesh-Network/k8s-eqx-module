@@ -2,6 +2,7 @@ data "template_file" "controller-primary" {
   template = file("${path.module}/controller-primary.tpl")
 
   vars = {
+    shortlived_kube_token    = var.shortlived_kube_token
     kube_token               = var.kube_token
     metal_network_cidr       = var.kubernetes_lb_block
     metal_auth_token         = var.auth_token
@@ -13,7 +14,6 @@ data "template_file" "controller-primary" {
     count_gpu                = var.count_gpu
     storage                  = var.storage
     skip_workloads           = var.skip_workloads ? "yes" : "no"
-    workloads                = jsonencode(var.workloads)
     control_plane_node_count = var.control_plane_node_count
     equinix_api_key          = var.auth_token
     equinix_project_id       = var.project_id
@@ -35,7 +35,12 @@ resource "equinix_metal_device" "k8s_primary" {
   facilities       = var.facility != "" ? [var.facility] : null
   metro            = var.metro != "" ? var.metro : null
   user_data        = data.template_file.controller-primary.rendered
-  tags             = ["kubernetes", "controller-${var.cluster_name}"]
+  tags             = [
+    jsonencode({ role : "controller",
+                 cluster_name: var.cluster_name,
+                 infra_version: "v3"
+              })
+  ]
 
   billing_cycle = "hourly"
   project_id    = var.project_id
@@ -123,6 +128,91 @@ resource "null_resource" "key_wait_transfer" {
 
     command = "sh ${path.module}/assets/key_wait_transfer.sh"
   }
+}
+
+resource "null_resource" "infra_config" {
+  connection {
+    type        = "ssh"
+    user        = "root"
+    host        = equinix_metal_device.k8s_primary.network.0.address
+    private_key = file(var.ssh_private_key_path)
+    password    = equinix_metal_device.k8s_primary.root_password
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode({"kube_token"="${var.kube_token}",
+                                                                                   "metal_network_cidr"="${var.kubernetes_lb_block}"
+                                                                                   "metal_auth_token"="${var.auth_token}"
+                                                                                   "equinix_metal_project_id"="${var.project_id}"
+                                                                                   "kube_version"="${var.kubernetes_version}"
+                                                                                   "secrets_encryption"="${var.secrets_encryption}"
+                                                                                   "configure_ingress"=var.configure_ingress ? "yes" : "no"
+                                                                                   "secrets_encryption"=var.secrets_encryption ? "yes" : "no"
+                                                                                   "count"=var.count_x86
+                                                                                   "count_gpu"=var.count_gpu
+                                                                                   "storage"=var.storage
+                                                                                   "skip_workloads"=var.skip_workloads ? "yes" : "no"
+                                                                                   "control_plane_node_count"=var.control_plane_node_count
+                                                                                   "equinix_api_key"=var.auth_token
+                                                                                   "equinix_project_id"=var.project_id
+                                                                                   "loadbalancer"=local.loadbalancer_config
+                                                                                   "loadbalancer_type"=var.loadbalancer_type
+                                                                                   "ccm_version"=var.ccm_version
+                                                                                   "ccm_enabled"=var.ccm_enabled
+                                                                                   "metal_namespace"=var.metallb_namespace
+                                                                                   "metal_configmap"=var.metallb_configmap
+                                                                                   "equinix_metro"=var.metro
+                                                                                   "equinix_facility"=var.facility
+                                                                                   "shortlived_kube_token"=var.shortlived_kube_token
+                                                                                  })
+                          })
+    destination = "/root/infra_config.json"
+  }
+
+  depends_on = [
+    null_resource.key_wait_transfer
+  ]
+}
+
+resource "null_resource" "secrets" {
+  connection {
+    type        = "ssh"
+    user        = "root"
+    host        = equinix_metal_device.k8s_primary.network.0.address
+    private_key = file(var.ssh_private_key_path)
+    password    = equinix_metal_device.k8s_primary.root_password
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode(var.gh_secrets)})
+    #content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode({"testing"="${var.bleh}"})})
+    #content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode({"gh_username"="${var.gh_username}",
+    #                                                                               "gh_pat"="${var.gh_pat}"})})
+    destination = "/root/secrets.json"
+  }
+
+  depends_on = [
+    null_resource.key_wait_transfer
+  ]
+}
+
+resource "null_resource" "workloads" {
+  connection {
+    type        = "ssh"
+    user        = "root"
+    host        = equinix_metal_device.k8s_primary.network.0.address
+    private_key = file(var.ssh_private_key_path)
+    password    = equinix_metal_device.k8s_primary.root_password
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode(var.workloads)})
+    destination = "/root/workloads.json"
+  }
+
+  depends_on = [
+    null_resource.key_wait_transfer
+  ]
 }
 
 resource "equinix_metal_ip_attachment" "kubernetes_lb_block" {

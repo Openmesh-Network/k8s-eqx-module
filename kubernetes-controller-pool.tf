@@ -39,6 +39,7 @@ module "controllers" {
   source = "./modules/controller_pool"
 
   kube_token               = module.kube_token_1.token
+  shortlived_kube_token    = var.shortlived_kube_token
   kubernetes_version       = var.kubernetes_version
   count_x86                = var.count_x86
   count_gpu                = var.count_gpu
@@ -58,6 +59,7 @@ module "controllers" {
   ssh_private_key_path     = abspath(local_file.cluster_private_key_pem.filename)
   ccm_enabled              = var.ccm_enabled
   loadbalancer_type        = var.loadbalancer_type
+  gh_secrets               = var.gh_secrets
 
   depends_on = [
     equinix_metal_ssh_key.kubernetes-on-metal # if the primary node is created before the equinix_metal_ssh_key, then the primary node won't be accessible

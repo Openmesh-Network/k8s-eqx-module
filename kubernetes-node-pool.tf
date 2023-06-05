@@ -1,7 +1,7 @@
 module "node_pool_blue" {
   source = "./modules/node_pool"
 
-  kube_token         = module.kube_token_1.token
+  kube_token         = var.shortlived_kube_token != "" ? var.shortlived_kube_token : module.kube_token_1.token
   kubernetes_version = var.kubernetes_version
   pool_label         = "blue"
   count_x86          = var.count_x86
@@ -21,7 +21,7 @@ module "node_pool_blue" {
 module "node_pool_gpu_green" {
   source = "./modules/gpu_node_pool"
 
-  kube_token         = module.kube_token_1.token
+  kube_token         = var.shortlived_kube_token != "" ? var.shortlived_kube_token : module.kube_token_1.token
   kubernetes_version = var.kubernetes_version
   pool_label         = "gpu-green"
   count_gpu          = var.count_gpu
