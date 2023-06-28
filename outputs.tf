@@ -17,3 +17,13 @@ output "kubernetes_kubeconfig_file" {
   description = "Kubecobnfig file for the newly created cluster"
   value       = module.controllers.kubeconfig_filename
 }
+
+output "network_cidr" {
+  description = "cidr_notation"
+  value       = resource.equinix_metal_reserved_ip_block.kubernetes.cidr_notation
+}
+
+output "first_ip" {
+  description = "first_ip"
+  value       = resource.equinix_metal_reserved_ip_block.kubernetes.gateway
+}
