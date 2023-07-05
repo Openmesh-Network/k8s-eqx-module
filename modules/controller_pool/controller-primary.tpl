@@ -29,7 +29,7 @@ done
 
 sleep 5
 
-mkdir -p /data/postgres /data/prometheus /data/superset
+mkdir -p /data/postgres /data/prometheus /data/superset /data/zookeeper-logs /data/zookeeper-data
 
 echo "performing the following"
 echo docker run -v $HOME/agent:/apps -v $HOME/infra-helm-charts:/apps/infra-helm-charts -v /etc/kubernetes/admin.conf:/etc/kubernetes/admin.conf -e uniq_id=$(awk  -F '-' '{print $1}' <<< $(hostname)) -e KUBECONFIG=/etc/kubernetes/admin.conf --entrypoint '/bin/bash' ahaiong/l3a-installer:latest "/apps/install-l3a.sh"

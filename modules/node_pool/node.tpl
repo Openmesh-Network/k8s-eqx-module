@@ -2,6 +2,8 @@
 
 export HOME=/root
 
+mkdir -p /data/kafka
+
 
 function install_containerd() {
 cat <<EOF > /etc/modules-load.d/containerd.conf
