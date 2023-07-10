@@ -44,4 +44,7 @@ resource "equinix_metal_device" "arm_node" {
 
   billing_cycle = "hourly"
   project_id    = var.project_id
+  lifecycle {
+    ignore_changes = [user_data]
+  }
 }
