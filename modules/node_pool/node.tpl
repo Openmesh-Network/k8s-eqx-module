@@ -4,7 +4,6 @@ export HOME=/root
 
 mkdir -p /data/kafka
 
-
 function install_containerd() {
 cat <<EOF > /etc/modules-load.d/containerd.conf
 overlay
@@ -14,7 +13,7 @@ EOF
  modprobe br_netfilter
  echo "Installing Containerd..."
  apt-get update
- apt-get install -y ca-certificates socat ebtables apt-transport-https cloud-utils prips containerd jq python3
+ apt-get install -y ca-certificates socat ebtables apt-transport-https cloud-utils prips containerd jq python3 ipcalc
 }
 
 function enable_containerd() {
@@ -55,7 +54,7 @@ net.bridge.bridge-nf-call-ip6tables = 1
 EOF
 
   sysctl --system
-  kubeadm join "${primary_node_ip}:6443" --token "${kube_token}" --discovery-token-unsafe-skip-ca-verification
+  kubeadm join $(ipcalc $(curl -s http://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .parent_block.network')/$(curl -s http://metadata.platformequinix.com/metadata | jq -r '.network.addresses[] | select(.public == false) | select(.management == true) | select(.address_family == 4) | .parent_block.cidr') | sed -n -e '/^HostMin/p' | awk '{print $2}'):6443 --token "${kube_token}" --discovery-token-unsafe-skip-ca-verification
 }
 
 install_containerd && \
@@ -69,4 +68,5 @@ sleep 180 && \
 if [ "${ccm_enabled}" = "true" ]; then
   echo KUBELET_EXTRA_ARGS=\"--cloud-provider=external\" > /etc/default/kubelet
 fi
+
 join_cluster
