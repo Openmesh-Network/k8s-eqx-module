@@ -1,5 +1,5 @@
 locals {
-  ssh_key_name = "metal-key"
+  ssh_key_name = "metal_key"
 }
 
 resource "random_id" "cloud" {
@@ -23,14 +23,14 @@ resource "local_file" "cluster_public_key" {
   file_permission = "0600"
 }
 
-resource "equinix_metal_ssh_key" "kubernetes-on-metal" {
-  name       = format("terraform-k8s-%s", random_id.cloud.b64_url)
+resource "equinix_metal_project_ssh_key" "kubernetes_on_metal" {
+  name       = format("master-key-%s", var.cluster_name)
   public_key = chomp(tls_private_key.ssh_key_pair.public_key_openssh)
+  project_id = var.metal_create_project ? equinix_metal_project.new_project[0].id : var.project_id
 }
 
 resource "equinix_metal_reserved_ip_block" "kubernetes" {
   project_id = var.metal_create_project ? equinix_metal_project.new_project[0].id : var.project_id
-  facility   = var.facility != "" ? var.facility : null
   metro      = var.metro != "" ? var.metro : null
   quantity   = 4
 }
@@ -44,7 +44,6 @@ module "controllers" {
   count_x86                = var.count_x86
   count_gpu                = var.count_gpu
   plan_primary             = var.plan_primary
-  facility                 = var.facility
   metro                    = var.metro
   cluster_name             = var.cluster_name
   kubernetes_lb_block      = equinix_metal_reserved_ip_block.kubernetes.cidr_notation
@@ -62,6 +61,6 @@ module "controllers" {
   gh_secrets               = var.gh_secrets
 
   depends_on = [
-    equinix_metal_ssh_key.kubernetes-on-metal # if the primary node is created before the equinix_metal_ssh_key, then the primary node won't be accessible
+    equinix_metal_project_ssh_key.kubernetes_on_metal # if the primary node is created before the equinix_metal_project_ssh_key, then the primary node won't be accessible
   ]
 }

@@ -24,11 +24,6 @@ variable "plan_gpu" {
   description = "Plan for K8s GPU Nodes"
 }
 
-variable "facility" {
-  type        = string
-  description = "Equinix Metal Facility (conflicts with metro)"
-}
-
 variable "metro" {
   type        = string
   description = "Equinix Metal Metro (conflicts with facility)"
