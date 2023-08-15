@@ -1,19 +1,20 @@
 module "node_pool_blue" {
   source = "./modules/node_pool"
 
-  kube_token         = var.shortlived_kube_token != "" ? var.shortlived_kube_token : module.kube_token_1.token
-  kubernetes_version = var.kubernetes_version
-  pool_label         = "blue"
-  count_x86          = var.count_x86
-  count_arm          = var.count_arm
-  plan_x86           = var.plan_x86
-  plan_arm           = var.plan_arm
-  metro              = var.metro
-  cluster_name       = var.cluster_name
-  controller_address = module.controllers.controller_addresses
-  project_id         = var.metal_create_project ? equinix_metal_project.new_project[0].id : var.project_id
-  storage            = var.storage
-  ccm_enabled        = var.ccm_enabled
+  kube_token            = var.shortlived_kube_token != "" ? var.shortlived_kube_token : module.kube_token_1.token
+  kubernetes_version    = var.kubernetes_version
+  pool_label            = "blue"
+  count_x86             = var.count_x86
+  count_arm             = var.count_arm
+  plan_x86              = var.plan_x86
+  plan_arm              = var.plan_arm
+  metro                 = var.metro
+  cluster_name          = var.cluster_name
+  controller_address    = module.controllers.controller_addresses
+  project_id            = var.metal_create_project ? equinix_metal_project.new_project[0].id : var.project_id
+  storage               = var.storage
+  ccm_enabled           = var.ccm_enabled
+  ssh_private_key_path  = abspath(local_file.cluster_private_key_pem.filename)
 
 }
 

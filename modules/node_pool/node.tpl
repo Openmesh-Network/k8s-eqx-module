@@ -13,7 +13,7 @@ EOF
  modprobe br_netfilter
  echo "Installing Containerd..."
  apt-get update
- apt-get install -y ca-certificates socat ebtables apt-transport-https cloud-utils prips containerd jq python3 ipcalc
+ apt-get install -y ca-certificates socat ebtables apt-transport-https cloud-utils prips containerd jq python3 ipcalc gpg
 }
 
 function enable_containerd() {

@@ -46,3 +46,46 @@ resource "equinix_metal_device" "arm_node" {
     ignore_changes = [user_data]
   }
 }
+
+resource "null_resource" "sos_user" {
+  count = var.count_x86
+
+  connection {
+    host        = element(equinix_metal_device.x86_node.*.network.0.address, count.index)
+    private_key = file(var.ssh_private_key_path)
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/../assets/create_sos_user.sh"
+    destination = "/tmp/create_sos_user.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/create_sos_user.sh",
+      "/tmp/create_sos_user.sh"
+    ]
+  }
+
+  provisioner "local-exec" {
+    environment = {
+      host                  = element(equinix_metal_device.x86_node.*.network.0.address, count.index)
+      #host                 = equinix_metal_device.x86_node.network.0.address
+      ssh_private_key_path = var.ssh_private_key_path
+      local_path           = path.root
+    }
+    command = "sh ${path.module}/../assets/download_sos_password.sh"
+  }
+}
+
+#resource "null_resource" "sos_user" {
+#  provisioner "local-exec" {
+#    environment = {
+#      controller           = equinix_metal_device.x86_node.*.network.0.address
+#      ssh_private_key_path = var.ssh_private_key_path
+#      local_path           = path.root
+#    }
+#
+#    command = "sh ${path.module}/../assets/sos_usercreation.sh"
+#  }
+#}

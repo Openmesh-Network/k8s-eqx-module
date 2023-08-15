@@ -6,7 +6,7 @@ export BUILD_DIR=$HOME/l3a
 mkdir -p $BUILD_DIR
 
 apt-get update
-apt-get install -y jq git inotify-tools docker.io
+apt-get install -y jq git inotify-tools docker.io gpg
 
 while [ ! -f "$HOME/secrets.json" ]
 do

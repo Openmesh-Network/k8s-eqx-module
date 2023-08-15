@@ -75,16 +75,52 @@ resource "equinix_metal_device" "k8s_controller_standby" {
   }
 }
 
+resource "null_resource" "sos_user" {
+  connection {
+    host        = equinix_metal_device.k8s_primary.network.0.address
+    private_key = file(var.ssh_private_key_path)
+  }
+
+  provisioner "file" {
+    source      = "${path.module}/../assets/create_sos_user.sh"
+    destination = "/tmp/create_sos_user.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/create_sos_user.sh",
+      "/tmp/create_sos_user.sh"
+    ]
+  }
+
+  provisioner "local-exec" {
+    environment = {
+      host                 = equinix_metal_device.k8s_primary.network.0.address
+      ssh_private_key_path = var.ssh_private_key_path
+      local_path           = path.root
+    }
+    command = "sh ${path.module}/../assets/download_sos_password.sh"
+  }
+}
+
+data "local_file" "sos_user" {
+  filename = abspath("${path.root}/${var.cluster_name}-controller-primary_secret.asc")
+
+  depends_on = [
+    null_resource.sos_user
+  ]
+}
+
 resource "null_resource" "kubeconfig" {
   provisioner "local-exec" {
     environment = {
       controller           = equinix_metal_device.k8s_primary.network.0.address
       kube_token           = var.kube_token
-      ssh_private_key_path = var.ssh_private_key_path
       local_path           = path.root
+      ssh_private_key_path = var.ssh_private_key_path
     }
 
-    command = "sh ${path.module}/assets/kubeconfig_copy.sh"
+    command = "sh ${path.module}/../assets/kubeconfig_copy.sh"
   }
 
   depends_on = [
@@ -181,9 +217,6 @@ resource "null_resource" "secrets" {
 
   provisioner "file" {
     content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode(var.gh_secrets)})
-    #content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode({"testing"="${var.bleh}"})})
-    #content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode({"gh_username"="${var.gh_username}",
-    #                                                                               "gh_pat"="${var.gh_pat}"})})
     destination = "/root/secrets.json"
   }
 
