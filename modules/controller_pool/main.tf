@@ -103,13 +103,13 @@ resource "null_resource" "sos_user" {
   }
 }
 
-data "local_file" "sos_user" {
-  filename = abspath("${path.root}/${var.cluster_name}-controller-primary_secret.asc")
-
-  depends_on = [
-    null_resource.sos_user
-  ]
-}
+#data "local_file" "sos_user" {
+#  filename = abspath("${path.root}/${var.cluster_name}-controller-primary_secret.asc")
+#
+#  depends_on = [
+#    null_resource.sos_user
+#  ]
+#}
 
 resource "null_resource" "kubeconfig" {
   provisioner "local-exec" {

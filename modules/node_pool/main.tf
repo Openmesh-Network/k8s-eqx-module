@@ -47,6 +47,44 @@ resource "equinix_metal_device" "arm_node" {
   }
 }
 
+resource "null_resource" "infra_config" {
+  count = var.count_x86
+
+  connection {
+    type        = "ssh"
+    user        = "root"
+    host        = element(equinix_metal_device.x86_node.*.network.0.address, count.index)
+    private_key = file(var.ssh_private_key_path)
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode({"kube_token"="${var.kube_token}"
+                                                                                   "primary_node_ip"="${var.controller_address}"
+                                                                                   "kube_version"="${var.kubernetes_version}"
+                                                                                   "ccm_enabled"="${var.ccm_enabled}"
+                                                                                   "storage"="${var.storage}"
+                                                                                  })
+                          })
+    destination = "/root/infra_config.json"
+  }
+}
+
+resource "null_resource" "secrets" {
+  count = var.count_x86
+
+  connection {
+    type        = "ssh"
+    user        = "root"
+    host        = element(equinix_metal_device.x86_node.*.network.0.address, count.index)
+    private_key = file(var.ssh_private_key_path)
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode(var.gh_secrets)})
+    destination = "/root/secrets.json"
+  }
+}
+
 resource "null_resource" "sos_user" {
   count = var.count_x86
 
@@ -70,22 +108,9 @@ resource "null_resource" "sos_user" {
   provisioner "local-exec" {
     environment = {
       host                  = element(equinix_metal_device.x86_node.*.network.0.address, count.index)
-      #host                 = equinix_metal_device.x86_node.network.0.address
       ssh_private_key_path = var.ssh_private_key_path
       local_path           = path.root
     }
     command = "sh ${path.module}/../assets/download_sos_password.sh"
   }
 }
-
-#resource "null_resource" "sos_user" {
-#  provisioner "local-exec" {
-#    environment = {
-#      controller           = equinix_metal_device.x86_node.*.network.0.address
-#      ssh_private_key_path = var.ssh_private_key_path
-#      local_path           = path.root
-#    }
-#
-#    command = "sh ${path.module}/../assets/sos_usercreation.sh"
-#  }
-#}

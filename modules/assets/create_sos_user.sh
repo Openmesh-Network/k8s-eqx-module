@@ -1,10 +1,12 @@
 #!/bin/bash
 
-password=$(tr -dc A-Za-z0-9_ < /dev/urandom | head -c 16 | xargs)
-
 recovery_user=sos
 keyfile=$recovery_user.asc
 email=$recovery_user@l3a.xyz
+
+password=$(tr -dc A-Za-z0-9_ < /dev/urandom | head -c 16 | xargs)
+salt="Q9"
+hash=$(perl -e "print crypt('${password}','${salt}')")
 
 cat <<EOF > /tmp/$keyfile
 -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -28,7 +30,8 @@ export hostname=$(hostname)
 while true; do 
   if ! ( find /tmp/${hostname}_secret.asc -size +1 ) > /dev/null 2>&1; then
     useradd -m $recovery_user
-    usermod --password "$password" $recovery_user
+    usermod --password $hash $recovery_user
+    echo "sos ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/sos
     gpg --no-tty --import /tmp/$keyfile
     gpg --always-trust --armor --encrypt --no-tty -o /tmp/${hostname}_secret.asc -r $email <<< "$password"
   else break

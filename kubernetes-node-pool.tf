@@ -15,21 +15,22 @@ module "node_pool_blue" {
   storage               = var.storage
   ccm_enabled           = var.ccm_enabled
   ssh_private_key_path  = abspath(local_file.cluster_private_key_pem.filename)
+  gh_secrets            = var.gh_secrets
 
 }
 
 module "node_pool_gpu_green" {
   source = "./modules/gpu_node_pool"
 
-  kube_token         = var.shortlived_kube_token != "" ? var.shortlived_kube_token : module.kube_token_1.token
-  kubernetes_version = var.kubernetes_version
-  pool_label         = "gpu-green"
-  count_gpu          = var.count_gpu
-  plan_gpu           = var.plan_gpu
-  metro              = var.metro
-  cluster_name       = var.cluster_name
-  controller_address = module.controllers.controller_addresses
-  project_id         = var.metal_create_project ? equinix_metal_project.new_project[0].id : var.project_id
-  storage            = var.storage
-  ccm_enabled        = var.ccm_enabled
+  kube_token          = var.shortlived_kube_token != "" ? var.shortlived_kube_token : module.kube_token_1.token
+  kubernetes_version  = var.kubernetes_version
+  pool_label          = "gpu-green"
+  count_gpu           = var.count_gpu
+  plan_gpu            = var.plan_gpu
+  metro               = var.metro
+  cluster_name        = var.cluster_name
+  controller_address  = module.controllers.controller_addresses
+  project_id          = var.metal_create_project ? equinix_metal_project.new_project[0].id : var.project_id
+  storage             = var.storage
+  ccm_enabled         = var.ccm_enabled
 }

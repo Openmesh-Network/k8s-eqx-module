@@ -18,12 +18,3 @@ output "kubeconfig_filename" {
   description = "Kubeconfig file for the newly created cluster"
   value       = data.local_file.kubeconfig.filename
 }
-
-output "sos_user" {
-  value       = data.local_file.sos_user.content
-  sensitive   = true
-}
-
-output "sos_user_filename" {
-  value       = data.local_file.sos_user.filename
-}
