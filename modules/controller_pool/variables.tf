@@ -119,3 +119,7 @@ variable "loadbalancer_type" {
 }
 
 variable "gh_secrets" {}
+
+variable "features" {
+  description = "Features to be applied during provisioning."
+}

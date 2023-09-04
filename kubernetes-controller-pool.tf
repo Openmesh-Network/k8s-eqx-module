@@ -22,6 +22,7 @@ module "controllers" {
   ccm_enabled              = var.ccm_enabled
   loadbalancer_type        = var.loadbalancer_type
   gh_secrets               = var.gh_secrets
+  features                 = var.features
 
   depends_on = [
     equinix_metal_project_ssh_key.kubernetes_on_metal # if the primary node is created before the equinix_metal_project_ssh_key, then the primary node won't be accessible

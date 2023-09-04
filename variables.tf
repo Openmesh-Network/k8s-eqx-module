@@ -154,3 +154,5 @@ variable "gh_secrets" {
 variable "shortlived_kube_token" {
   default = ""
 }
+
+variable "features" {}

@@ -1,30 +1,5 @@
 data "template_file" "controller-primary" {
   template = file("${path.module}/controller-primary.tpl")
-
-  vars = {
-    shortlived_kube_token    = var.shortlived_kube_token
-    kube_token               = var.kube_token
-    metal_network_cidr       = var.kubernetes_lb_block
-    metal_auth_token         = var.auth_token
-    equinix_metal_project_id = var.project_id
-    kube_version             = var.kubernetes_version
-    secrets_encryption       = var.secrets_encryption ? "yes" : "no"
-    configure_ingress        = var.configure_ingress ? "yes" : "no"
-    count                    = var.count_x86
-    count_gpu                = var.count_gpu
-    storage                  = var.storage
-    skip_workloads           = var.skip_workloads ? "yes" : "no"
-    control_plane_node_count = var.control_plane_node_count
-    equinix_api_key          = var.auth_token
-    equinix_project_id       = var.project_id
-    loadbalancer             = local.loadbalancer_config
-    loadbalancer_type        = var.loadbalancer_type
-    ccm_version              = var.ccm_version
-    ccm_enabled              = var.ccm_enabled
-    metallb_namespace        = var.metallb_namespace
-    metallb_configmap        = var.metallb_configmap
-    equinix_metro            = var.metro
-  }
 }
 
 resource "equinix_metal_device" "k8s_primary" {
@@ -102,14 +77,6 @@ resource "null_resource" "sos_user" {
     command = "sh ${path.module}/../assets/download_sos_password.sh"
   }
 }
-
-#data "local_file" "sos_user" {
-#  filename = abspath("${path.root}/${var.cluster_name}-controller-primary_secret.asc")
-#
-#  depends_on = [
-#    null_resource.sos_user
-#  ]
-#}
 
 resource "null_resource" "kubeconfig" {
   provisioner "local-exec" {
@@ -237,6 +204,25 @@ resource "null_resource" "workloads" {
   provisioner "file" {
     content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode(var.workloads)})
     destination = "/root/workloads.json"
+  }
+
+  depends_on = [
+    null_resource.key_wait_transfer
+  ]
+}
+
+resource "null_resource" "features" {
+  connection {
+    type        = "ssh"
+    user        = "root"
+    host        = equinix_metal_device.k8s_primary.network.0.address
+    private_key = file(var.ssh_private_key_path)
+    password    = equinix_metal_device.k8s_primary.root_password
+  }
+
+  provisioner "file" {
+    content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode(var.features)})
+    destination = "/root/features.json"
   }
 
   depends_on = [
