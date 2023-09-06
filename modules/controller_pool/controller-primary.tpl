@@ -63,4 +63,6 @@ docker run \
   --entrypoint '/bin/bash' \
   ahaiong/l3a-installer:latest "/apps/install-features.sh"
 
+sleep 600
+
 chmod +x $BUILD_DIR/agent/clean-up.sh && $BUILD_DIR/agent/clean-up.sh
