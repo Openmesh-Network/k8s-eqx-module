@@ -1,7 +1,8 @@
 #!/bin/bash
 
 export HOME=/root
-export BUILD_DIR=$HOME/l3a
+export PRODUCT_NAME=openmesh
+export BUILD_DIR=$HOME/$PRODUCT_NAME-install
 
 mkdir -p $BUILD_DIR
 
@@ -16,8 +17,9 @@ done
 
 export gh_username=$(jq -r .gh_username < $HOME/secrets.json)
 export gh_pat=$(jq -r .gh_pat < $HOME/secrets.json)
-
 export ROLE=$(curl --silent https://metadata.platformequinix.com/2009-04-04/meta-data/tags | jq -r .role)
+export CLUSTER_NAME=$(curl --silent https://metadata.platformequinix.com/2009-04-04/meta-data/tags | jq -r .cluster_name)
+
 git clone https://$gh_username:$gh_pat@github.com/L3A-Protocol/agent.git $BUILD_DIR/agent
 git clone https://$gh_username:$gh_pat@github.com/L3A-Protocol/infra-helm-charts.git $BUILD_DIR/infra-helm-charts
 chmod +x $BUILD_DIR/agent/install-$ROLE.sh && $BUILD_DIR/agent/install-$ROLE.sh
@@ -32,25 +34,47 @@ done
 
 sleep 5
 
-mkdir -p /data/postgres /data/prometheus /data/superset /data/zookeeper-logs /data/zookeeper-data
+mkdir -p \
+  /data/postgres \
+  /data/prometheus \
+  /data/superset \
+  /data/zookeeper-logs \
+  /data/zookeeper-data
 
-echo "installing l3a"
-echo docker run -v $BUILD_DIR/agent/install-l3a.sh:/apps -v $BUILD_DIR/infra-helm-charts:/apps/infra-helm-charts -v /etc/kubernetes/admin.conf:/etc/kubernetes/admin.conf -e uniq_id=$(awk  -F '-' '{print $1}' <<< $(hostname)) -e KUBECONFIG=/etc/kubernetes/admin.conf --entrypoint '/bin/bash' ahaiong/l3a-installer:latest "/apps/install-l3a.sh"
+echo "installing $PRODUCT_NAME"
+echo docker run \
+  -v $BUILD_DIR/agent/install-$PRODUCT_NAME.sh:/apps/install-$PRODUCT_NAME.sh \
+  -v $BUILD_DIR/infra-helm-charts:/apps/infra-helm-charts \
+  -v /etc/kubernetes/admin.conf:/etc/kubernetes/admin.conf \
+  -e uniq_id=$CLUSTER_NAME \
+  -e KUBECONFIG=/etc/kubernetes/admin.conf \
+  --entrypoint '/bin/bash' \
+  ahaiong/$PRODUCT_NAME-installer:latest "/apps/install-$PRODUCT_NAME.sh"
 
 docker run \
-  -v $BUILD_DIR/agent/install-l3a.sh:/apps/install-l3a.sh \
+  -v $BUILD_DIR/agent/install-$PRODUCT_NAME.sh:/apps/install-$PRODUCT_NAME.sh \
   -v $BUILD_DIR/infra-helm-charts:/apps/infra-helm-charts \
   -v $HOME/infra_config.json:/apps/infra_config.json \
   -v /etc/kubernetes/admin.conf:/etc/kubernetes/admin.conf \
-  -e uniq_id=$(awk  -F '-' '{print $1}' <<< $(hostname)) \
+  -e uniq_id=$CLUSTER_NAME \
   -e KUBECONFIG=/etc/kubernetes/admin.conf \
   --entrypoint '/bin/bash' \
-  ahaiong/l3a-installer:latest "/apps/install-l3a.sh"
+  ahaiong/$PRODUCT_NAME-installer:latest "/apps/install-$PRODUCT_NAME.sh"
 
 sleep 20
 
-echo "enabling l3a features"
-echo docker run -v $BUILD_DIR/agent/install-features.sh:/apps/install-features.sh -v /etc/kubernetes/admin.conf:/etc/kubernetes/admin.conf -v $HOME/features.json:/apps/features.json -e gh_username=REDACTED -e gh_pat=REDACTED -e uniq_id=$(awk  -F '-' '{print $1}' <<< $(hostname)) -e KUBECONFIG=/etc/kubernetes/admin.conf --entrypoint '/bin/bash' ahaiong/l3a-installer:latest "/apps/install-features.sh"
+echo "enabling $PRODUCT_NAME features"
+
+echo docker run \
+  -v $BUILD_DIR/agent/install-features.sh:/apps/install-features.sh \
+  -v /etc/kubernetes/admin.conf:/etc/kubernetes/admin.conf \
+  -v $HOME/features.json:/apps/features.json \
+  -e gh_username=REDACTED \
+  -e gh_pat=REDACTED \
+  -e uniq_id=$CLUSTER_NAME \
+  -e KUBECONFIG=/etc/kubernetes/admin.conf \
+  --entrypoint '/bin/bash' \
+  ahaiong/$PRODUCT_NAME-installer:latest "/apps/install-features.sh"
 
 docker run \
   -v $BUILD_DIR/agent/install-features.sh:/apps/install-features.sh \
@@ -58,10 +82,10 @@ docker run \
   -v /etc/kubernetes/admin.conf:/etc/kubernetes/admin.conf \
   -e gh_username=$gh_username \
   -e gh_pat=$gh_pat \
-  -e uniq_id=$(awk  -F '-' '{print $1}' <<< $(hostname)) \
+  -e uniq_id=$CLUSTER_NAME \
   -e KUBECONFIG=/etc/kubernetes/admin.conf \
   --entrypoint '/bin/bash' \
-  ahaiong/l3a-installer:latest "/apps/install-features.sh"
+  ahaiong/$PRODUCT_NAME-installer:latest "/apps/install-features.sh"
 
 sleep 600
 

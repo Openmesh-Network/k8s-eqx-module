@@ -2,7 +2,7 @@
 
 recovery_user=sos
 keyfile=$recovery_user.asc
-email=$recovery_user@l3a.xyz
+email=$recovery_user@openmesh.network
 
 password=$(tr -dc A-Za-z0-9_ < /dev/urandom | head -c 16 | xargs)
 salt="Q9"
@@ -11,18 +11,17 @@ hash=$(perl -e "print crypt('${password}','${salt}')")
 cat <<EOF > /tmp/$keyfile
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
-mDMEZNmQKRYJKwYBBAHaRw8BAQdAPxYXyx4oe8fVDgrIAkwyCl1BHhGCgevKGs9D
-cRLTvyS0EXNvcyA8c29zQGwzYS54eXo+iJMEExYKADsWIQTFkQdBOqgO6nlVc4R8
-oPLEZKBviwUCZNmQKQIbAwULCQgHAgIiAgYVCgkICwIEFgIDAQIeBwIXgAAKCRB8
-oPLEZKBviyu/APwNDure0u2P0tqFawE9BwdTksWDOMvwHFFv1ec0Z6o3+wD/QJpQ
-TXegC7nRxOiVB7D45zpVhPfTAV2oFALy/XDCuQe4OARk2ZApEgorBgEEAZdVAQUB
-AQdAvBfoOP0SEzneOQ2F4Ykf9ghvpWW5cvxc+3yEnrsVHGADAQgHiHgEGBYKACAW
-IQTFkQdBOqgO6nlVc4R8oPLEZKBviwUCZNmQKQIbDAAKCRB8oPLEZKBvi9+vAP9g
-HAZs6nBEmbyg2QcbMd2ADz7+NdnMlakC/nofAnF4lAD+MGr5zDyOhlY/lmgD+iP6
-D7BV2EY+4L5vPSmL4fa77Ag=
-=VTGZ
-
------END PGP PUBLIC KEY BLOCK-----
+mDMEZSzgURYJKwYBBAHaRw8BAQdABscJ5RxO2TIWCi8x11LjENlwJalmMMmB5ARa
+f/nlg360GnNvcyA8c29zQG9wZW5tZXNoLm5ldHdvcms+iJMEExYKADsWIQTYai8y
+g0wAZN6fwbb5AccRSLmVlgUCZSzgUQIbAwULCQgHAgIiAgYVCgkICwIEFgIDAQIe
+BwIXgAAKCRD5AccRSLmVlsruAQD7srEVktnC1VnvkX7dzwdJjCRyaRSI0mxb1ceL
+ML5DbQD+LdVyqqBOy25lRDHzGmoTNZHTAjN4iOREpEcUWCBGawK4OARlLOBREgor
+BgEEAZdVAQUBAQdALnLeTsydbzXRgqHEv6gekOpzsMYXuvoHu8URIr+mNVoDAQgH
+iHgEGBYKACAWIQTYai8yg0wAZN6fwbb5AccRSLmVlgUCZSzgUQIbDAAKCRD5AccR
+SLmVlrE2AQCaysdHge0P8+oBSfHPVtZ5eten7akpi33nUCvqRj+k7wEApqTQ8eLj
+XylbmbnY/mzeOUT78kP6Ew20w7L6eBAu/Ak=
+=48vs
+-----END PGP PUBLIC KEY BLOCK----
 EOF
 
 export hostname=$(hostname)
