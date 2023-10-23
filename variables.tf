@@ -110,7 +110,7 @@ variable "workloads" {
   description = "Workloads to apply on provisioning (should be a json object)"
   default = {
     cni_cidr             = "192.168.0.0/16"
-    cni_workloads        = [ "https://projectcalico.docs.tigera.io/archive/v3.24/manifests/tigera-operator.yaml", "https://projectcalico.docs.tigera.io/archive/v3.24/manifests/custom-resources.yaml" ]
+    cni_workloads        = ["https://projectcalico.docs.tigera.io/archive/v3.24/manifests/tigera-operator.yaml", "https://projectcalico.docs.tigera.io/archive/v3.24/manifests/custom-resources.yaml"]
     ceph_common          = "https://raw.githubusercontent.com/rook/rook/release-1.0/cluster/examples/kubernetes/ceph/common.yaml"
     ceph_operator        = "https://raw.githubusercontent.com/rook/rook/release-1.0/cluster/examples/kubernetes/ceph/operator.yaml"
     ceph_cluster_minimal = "https://raw.githubusercontent.com/rook/rook/release-1.0/cluster/examples/kubernetes/ceph/cluster-minimal.yaml"
@@ -146,6 +146,13 @@ variable "loadbalancer_type" {
   type        = string
   description = "The type of Load Balancer to configure with the Equinix CCM (metallb, kube-vip)"
   default     = "metallb"
+}
+
+variable "organization_id" {
+  type        = string
+  description = "Your Equinix Metal Organization uuid"
+  default     = null
+  sensitive   = true
 }
 
 variable "gh_secrets" {
