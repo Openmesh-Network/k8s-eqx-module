@@ -163,3 +163,10 @@ variable "shortlived_kube_token" {
 }
 
 variable "features" {}
+
+variable "single_xnode" {
+  type        = bool
+  default     = false
+}
+
+variable "grafana" {}

@@ -123,3 +123,10 @@ variable "gh_secrets" {}
 variable "features" {
   description = "Features to be applied during provisioning."
 }
+
+variable "single_xnode" {
+  type        = bool
+  default     = false
+}
+
+variable "grafana" {}

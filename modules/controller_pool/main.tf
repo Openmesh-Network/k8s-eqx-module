@@ -140,29 +140,30 @@ resource "null_resource" "infra_config" {
   }
 
   provisioner "file" {
-    content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode({"kube_token"="${var.kube_token}",
-                                                                                   "metal_network_cidr"="${var.kubernetes_lb_block}"
-                                                                                   "metal_auth_token"="${var.auth_token}"
-                                                                                   "equinix_metal_project_id"="${var.project_id}"
-                                                                                   "kube_version"="${var.kubernetes_version}"
-                                                                                   "secrets_encryption"="${var.secrets_encryption}"
+    content = templatefile("${path.module}/blank.tpl.json", {content = jsonencode({"ccm_enabled"=var.ccm_enabled
+                                                                                   "ccm_version"=var.ccm_version
                                                                                    "configure_ingress"=var.configure_ingress ? "yes" : "no"
-                                                                                   "secrets_encryption"=var.secrets_encryption ? "yes" : "no"
+                                                                                   "control_plane_node_count"=var.control_plane_node_count
                                                                                    "count"=var.count_x86
                                                                                    "count_gpu"=var.count_gpu
-                                                                                   "storage"=var.storage
-                                                                                   "skip_workloads"=var.skip_workloads ? "yes" : "no"
-                                                                                   "control_plane_node_count"=var.control_plane_node_count
                                                                                    "equinix_api_key"=var.auth_token
+                                                                                   "equinix_metal_project_id"="${var.project_id}"
+                                                                                   "equinix_metro"=var.metro
                                                                                    "equinix_project_id"=var.project_id
+                                                                                   "kube_token"="${var.kube_token}"
+                                                                                   "kube_version"="${var.kubernetes_version}"
                                                                                    "loadbalancer"=local.loadbalancer_config
                                                                                    "loadbalancer_type"=var.loadbalancer_type
-                                                                                   "ccm_version"=var.ccm_version
-                                                                                   "ccm_enabled"=var.ccm_enabled
-                                                                                   "metal_namespace"=var.metallb_namespace
-                                                                                   "metal_configmap"=var.metallb_configmap
-                                                                                   "equinix_metro"=var.metro
+                                                                                   "metal_auth_token"="${var.auth_token}"
+                                                                                   "metallb_network_cidr"="${var.kubernetes_lb_block}"
+                                                                                   "metallb_configmap"=var.metallb_configmap
+                                                                                   "metallb_namespace"=var.metallb_namespace
+                                                                                   "secrets_encryption"=var.secrets_encryption ? "yes" : "no"
+                                                                                   "single_xnode"=var.single_xnode
                                                                                    "shortlived_kube_token"=var.shortlived_kube_token
+                                                                                   "skip_workloads"=var.skip_workloads ? "yes" : "no"
+                                                                                   "storage"=var.storage
+                                                                                   "grafana"=var.grafana
                                                                                   })
                           })
     destination = "/root/infra_config.json"
