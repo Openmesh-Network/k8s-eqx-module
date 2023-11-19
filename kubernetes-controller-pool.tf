@@ -9,7 +9,7 @@ module "controllers" {
   plan_primary             = var.plan_primary
   metro                    = var.metro
   cluster_name             = var.cluster_name
-  kubernetes_lb_block      = equinix_metal_reserved_ip_block.kubernetes.cidr_notation
+  kubernetes_lb_block      = var.metal_create_project ? equinix_metal_reserved_ip_block.kubernetes[0].cidr_notation : var.kubernetes_lb_block
   project_id               = var.metal_create_project ? equinix_metal_project.new_project[0].id : var.project_id
   auth_token               = var.auth_token
   secrets_encryption       = var.secrets_encryption

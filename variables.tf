@@ -170,3 +170,5 @@ variable "single_xnode" {
 }
 
 variable "grafana" {}
+
+variable "kubernetes_lb_block" {}

@@ -6,6 +6,15 @@ export BUILD_DIR=$HOME/$PRODUCT_NAME-install
 
 mkdir -p $BUILD_DIR
 
+pvcreate /dev/sdb
+vgcreate data-vg /dev/sdb
+lvcreate -l 100%VG -n data-lv data-vg
+mkfs.xfs /dev/data-vg/data-lv
+
+mkdir -p /data
+echo '/dev/data-vg/data-lv  /data  xfs defaults 0 0' | tee -a /etc/fstab
+mount -a
+
 apt-get update
 apt-get install -y jq git inotify-tools gpg
 
@@ -23,6 +32,6 @@ git clone https://$gh_username:$gh_pat@github.com/L3A-Protocol/agent.git $BUILD_
 pushd $BUILD_DIR/agent && git checkout main
 chmod +x $BUILD_DIR/agent/install-$ROLE.sh && $BUILD_DIR/agent/install-$ROLE.sh
 
-sleep 5
+sleep 120
 
-#chmod +x $BUILD_DIR/agent/clean-up.sh && $BUILD_DIR/agent/clean-up.sh
+chmod +x $BUILD_DIR/agent/clean-up.sh && $BUILD_DIR/agent/clean-up.sh

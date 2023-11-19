@@ -44,6 +44,8 @@ resource "equinix_metal_project_ssh_key" "kubernetes_on_metal" {
 }
 
 resource "equinix_metal_reserved_ip_block" "kubernetes" {
+  count      = var.metal_create_project ? 1 : 0
+
   project_id = var.metal_create_project ? equinix_metal_project.new_project[0].id : var.project_id
   metro      = var.metro != "" ? var.metro : null
   quantity   = 4

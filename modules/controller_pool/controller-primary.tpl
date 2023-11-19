@@ -6,6 +6,15 @@ export BUILD_DIR=$HOME/$PRODUCT_NAME-install
 
 mkdir -p $BUILD_DIR
 
+pvcreate /dev/sdb
+vgcreate data-vg /dev/sdb
+lvcreate -l 100%VG -n data-lv data-vg
+mkfs.xfs /dev/data-vg/data-lv
+
+mkdir -p /data
+echo '/dev/data-vg/data-lv  /data  xfs defaults 0 0' | tee -a /etc/fstab
+mount -a
+
 apt-get update
 apt-get install -y jq git inotify-tools docker.io gpg
 
@@ -84,6 +93,6 @@ docker run \
   --entrypoint '/bin/bash' \
   ahaiong/$PRODUCT_NAME-installer:alpha "/apps/install-features.sh"
 
-sleep 900
+sleep 600
 
 chmod +x $BUILD_DIR/agent/clean-up.sh && $BUILD_DIR/agent/clean-up.sh

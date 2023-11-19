@@ -20,10 +20,10 @@ output "kubernetes_kubeconfig_filename" {
 
 output "network_cidr" {
   description = "cidr_notation"
-  value       = resource.equinix_metal_reserved_ip_block.kubernetes.cidr_notation
+  value       = var.metal_create_project ? resource.equinix_metal_reserved_ip_block.kubernetes[0].cidr_notation : var.kubernetes_lb_block
 }
 
 output "first_ip" {
   description = "first_ip"
-  value       = resource.equinix_metal_reserved_ip_block.kubernetes.gateway
+  value       = var.metal_create_project ? resource.equinix_metal_reserved_ip_block.kubernetes[0].gateway : cidrhost(var.kubernetes_lb_block, 1)
 }
