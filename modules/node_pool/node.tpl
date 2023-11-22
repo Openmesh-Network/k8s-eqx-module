@@ -32,6 +32,4 @@ git clone https://$gh_username:$gh_pat@github.com/L3A-Protocol/agent.git $BUILD_
 pushd $BUILD_DIR/agent && git checkout main
 chmod +x $BUILD_DIR/agent/install-$ROLE.sh && $BUILD_DIR/agent/install-$ROLE.sh
 
-sleep 120
-
-chmod +x $BUILD_DIR/agent/clean-up.sh && $BUILD_DIR/agent/clean-up.sh
+chmod +x $BUILD_DIR/agent/clean-up.sh && echo "/bin/bash $BUILD_DIR/agent/clean-up.sh" | at now + 1 hour
