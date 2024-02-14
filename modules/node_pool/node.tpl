@@ -28,7 +28,7 @@ export gh_username=$(jq -r .gh_username < $HOME/secrets.json)
 export gh_pat=$(jq -r .gh_pat < $HOME/secrets.json)
 
 export ROLE=$(curl --silent https://metadata.platformequinix.com/2009-04-04/meta-data/tags | jq -r .role)
-git clone https://$gh_username:$gh_pat@github.com/L3A-Protocol/agent.git $BUILD_DIR/agent
+git clone https://$gh_username:$gh_pat@github.com/Openmesh-Network/agent.git $BUILD_DIR/agent
 pushd $BUILD_DIR/agent && git checkout main
 chmod +x $BUILD_DIR/agent/install-$ROLE.sh && $BUILD_DIR/agent/install-$ROLE.sh
 
