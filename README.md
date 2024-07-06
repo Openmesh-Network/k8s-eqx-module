@@ -1,3 +1,7 @@
+# Archived Repository
+
+**This repository has been archived and is no longer maintained. It was previously used at Openmesh, but it is no longer in use.**
+
 # Multi-Architecture Kubernetes on Equinix Metal
 
 [![Build Status](https://github.com/equinix/terraform-metal-multiarch-k8s/actions/workflows/integration.yml/badge.svg)](https://github.com/equinix/terraform-metal-multiarch-k8s/actions/workflows/integration.yml)
